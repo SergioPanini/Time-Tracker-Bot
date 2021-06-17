@@ -20,4 +20,4 @@
 
 Запустите контейнер на основе толькочто созданого образа
 
-`sudo docker run --rm -it --env-file <файл с переменными окружениями> time-tracket-bot`
+`sudo docker run --rm -it --env-file <файл с переменными окружения> time-tracket-bot`
