@@ -11,13 +11,15 @@
 Так же можно добавлять свои активности(в будующем).
 
 # Install
-Создайте файл с переменными окружения, содержащий:
+### Создайте файл с переменными окружения, содержащий:
 `TELEGRAM_BOT_TOKEN` - api токен бота
 
-Соберите docker image из dockerfile
+`DATABASE_PATH` - путь до базы данных sqlite
 
-`sudo docker build --tag time-tracket-bot .` , где `time-tracket-bot` - название образа, которое вы хотите ему дать.
+### Соберите docker image из dockerfile
 
-Запустите контейнер на основе толькочто созданого образа
+`sudo docker build --tag time-tracket-bot .` , где `time-tracket-bot` название образа, которое вы хотите ему дать.
+
+### Запустите контейнер на основе толькочто созданого образа
 
 `sudo docker run --rm -it --env-file <файл с переменными окружения> time-tracket-bot`

@@ -14,8 +14,18 @@ dp = Dispatcher(bot)
 @dp.message_handler(commands=['start', 'help'])
 async def send_walcome(message: types.Message):
     '''Отправляет приветственное сообщение пользователю'''
+    m = types.InlineKeyboardMarkup()
+    m.add(types.InlineKeyboardButton(text='Activity1', callback_data='1' ), types.InlineKeyboardButton(text='start', callback_data='1' ))
+    
+    m.add(types.InlineKeyboardButton(text='<', callback_data='<' ), types.InlineKeyboardButton(text='>', callback_data='>' ))
 
-    await message.answer(START_MESSAGE)
+    await message.answer(START_MESSAGE, reply_markup=m)
+
+@dp.callback_query_handler()
+async def set_activety(callback_query: types.CallbackQuery):
+
+    print('get callback: ', callback_query)
+
 
 
 if __name__ == '__main__':
