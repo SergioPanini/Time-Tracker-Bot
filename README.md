@@ -14,7 +14,7 @@
 ### Создайте файл с переменными окружения, содержащий:
 `TELEGRAM_BOT_TOKEN` - api токен бота
 
-`DATABASE_PATH` - путь до базы данных sqlite
+`SHOW_ACTIVITIES_SIZE` - Скольк активностей выводить на главной панели
 
 ### Соберите docker image из dockerfile
 

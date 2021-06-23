@@ -2,7 +2,7 @@ import os
 from db import get_user_activities
 from aiogram import types
 
-SHOW_ACTIVITIES_SIZE = os.getenv('SHOW_ACTIVITIES_SIZE=3')
+SHOW_ACTIVITIES_SIZE = os.getenv('SHOW_ACTIVITIES_SIZE')
 
 
 def get_activities_keyboard(chat_id: int):
