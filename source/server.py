@@ -1,11 +1,14 @@
 import logging
 import os
+import typing
 
 from aiogram import Bot, Dispatcher, types, executor
+from aiogram.types import reply_keyboard
+from aiogram.types.message import Message
 from messages import START_MESSAGE
 
 from db import add_user, add_activity, get_user_activities
-from services import get_activities_keyboard
+from services import get_activities_keyboard, get_main_keyboard
 
 
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
@@ -26,9 +29,16 @@ async def send_walcome(message: types.Message):
     user_activities = get_user_activities(message.chat.id)
     print('Активность пользователя: ', user_activities)
     start_keyboard = get_activities_keyboard(message.chat.id)
+    static_keyboard = get_main_keyboard()
 
+    await message.answer('🖐🏻', reply_markup=static_keyboard)
     await message.answer(START_MESSAGE, reply_markup=start_keyboard)
 
+
+@dp.message_handler(commands=['console'])
+async def show_main_console(message: types.Message):
+    '''Отправляет основную консоль'''
+    await message.answer(text='Панель управления временем', reply_markup=get_activities_keyboard(message.chat.id))
 
 @dp.callback_query_handler()
 async def activety_select(callback_query: types.CallbackQuery):

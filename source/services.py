@@ -27,3 +27,10 @@ def get_activities_keyboard(chat_id: int):
                        types.InlineKeyboardButton(text='>', callback_data='>'))
 
     return START_KEYBOARD
+
+
+def get_main_keyboard():
+    keyboard = types.ReplyKeyboardMarkup()
+    keyboard.add(types.KeyboardButton(text='/console'))
+
+    return keyboard
