@@ -2,10 +2,10 @@ import os
 from db import get_user_activities
 from aiogram import types
 
-SHOW_ACTIVITIES_SIZE = os.getenv('SHOW_ACTIVITIES_SIZE')
+SHOW_ACTIVITIES_SIZE = int(os.getenv('SHOW_ACTIVITIES_SIZE'))
+print('show....', SHOW_ACTIVITIES_SIZE)
 
-
-def get_activities_keyboard(chat_id: int):
+def get_activities_keyboard(chat_id: int, _list=0):
     '''Создает главную клавитатуру'''
 
     START_KEYBOARD = types.InlineKeyboardMarkup()
@@ -15,16 +15,29 @@ def get_activities_keyboard(chat_id: int):
 
     user_activities = get_user_activities(chat_id)
 
-    for i in user_activities:
+    print(user_activities[_list * SHOW_ACTIVITIES_SIZE : (_list + 1) * SHOW_ACTIVITIES_SIZE])
+    for i in user_activities[_list * SHOW_ACTIVITIES_SIZE : (_list + 1) * SHOW_ACTIVITIES_SIZE ]:
         print(i)
         START_KEYBOARD.add(types.InlineKeyboardButton(text=str(i), callback_data=str(
             i)), types.InlineKeyboardButton(text='Start', callback_data='START-' + str(i)))
 
-        # START_KEYBOARD.add(types.InlineKeyboardButton(text=i, callback_data=i),
-        #                   types.InlineKeyboardButton(text='Start', callback_data='START'))
+    #Создание кнопок управления
 
-    START_KEYBOARD.add(types.InlineKeyboardButton(text='<', callback_data='<'),
-                       types.InlineKeyboardButton(text='>', callback_data='>'))
+    #Проверяем, есть ли что то на след странице
+    if user_activities[(_list + 1) * SHOW_ACTIVITIES_SIZE : (_list + 2) * SHOW_ACTIVITIES_SIZE]:
+        right_wall = _list + 1
+    else:
+        right_wall = _list
+    
+    #Проверяем, есть ли что то на предыдущ странице
+    if user_activities[(_list - 1) * SHOW_ACTIVITIES_SIZE : _list * SHOW_ACTIVITIES_SIZE]:
+        left_wall = _list - 1
+    else:
+        left_wall = _list
+
+
+    START_KEYBOARD.add(types.InlineKeyboardButton(text='<', callback_data='<:' + str(left_wall)),
+                       types.InlineKeyboardButton(text='>', callback_data='>:' + str(right_wall)))
 
     return START_KEYBOARD
 

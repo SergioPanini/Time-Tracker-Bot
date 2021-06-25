@@ -40,15 +40,34 @@ async def show_main_console(message: types.Message):
     '''Отправляет основную консоль'''
     await message.answer(text='Панель управления временем', reply_markup=get_activities_keyboard(message.chat.id))
 
+
+@dp.callback_query_handler(lambda callback_query: callback_query.data.split(':')[0] in ['<', '>'] )
+async def main_comsole_move(callback_query: types.CallbackQuery):
+    '''Передвигает консоль'''
+
+    #Получаем страницу, которую нужно показать 
+    _list = callback_query.data.split(':')[1]
+    
+    #Создаем новую клавиатуру
+    new_keyboard = get_activities_keyboard(callback_query.message.chat.id, int(_list))
+    
+    #Меняем клавиатуру пользователю
+    try:
+        await callback_query.message.edit_reply_markup(new_keyboard)
+    except:
+        await callback_query.answer('Больше нет активностей')
+
 @dp.callback_query_handler()
 async def activety_select(callback_query: types.CallbackQuery):
     '''Callback на кнопки добавления активности'''
 
     if callback_query.data == "Add_new_activities":
         await bot.send_message(chat_id=callback_query.message.chat.id, text='Введите название активности')
-
+        await callback_query.answer('Введите активность')
+        
         # Сохраняем флаг, что следующее сообщени пользователя будет активность
         set_activety_user_dict[callback_query.message.chat.id] = True
+        
 
 
 @dp.message_handler()
