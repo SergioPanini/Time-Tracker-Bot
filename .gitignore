@@ -3,3 +3,4 @@ __pycache__/*
 source/__pycache__/*
 env/*
 .vscode
+envfile

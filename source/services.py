@@ -35,16 +35,13 @@ def _build_new_page_activities(user_activities, page):
     #Собираем клавиатуру активностей
     for i in user_activities[page * SHOW_ACTIVITIES_SIZE : (page + 1) * SHOW_ACTIVITIES_SIZE ]:
         keyboard.add(types.InlineKeyboardButton(text=str(i), callback_data=str(
-            i)), types.InlineKeyboardButton(text='Start', callback_data='START-' + str(i)))
+            i)), types.InlineKeyboardButton(text='Start', callback_data='START:' + str(i)))
     
     #Создаем кнопки управления
     keyboard.add(types.InlineKeyboardButton(text='<', callback_data='<:' + str(page - 1)),
                        types.InlineKeyboardButton(text='>', callback_data='>:' + str(page + 1)))
     
     return keyboard
-
-
-
 
 def get_main_keyboard():
     keyboard = types.ReplyKeyboardMarkup()

@@ -7,7 +7,7 @@ from aiogram.types import reply_keyboard
 from aiogram.types.message import Message
 from messages import START_MESSAGE
 
-from db import add_user, add_activity, get_user_activities
+from db import add_user, add_activity, get_user_activities, start_activity, show_all
 from services import get_activities_console, get_main_keyboard, DontShowPage
 
 
@@ -59,7 +59,6 @@ async def main_comsole_move(callback_query: types.CallbackQuery):
     except DontShowPage:
         await callback_query.answer('Больше нет активностей')
 
-
 @dp.callback_query_handler(lambda callback_query: callback_query.data == "Add_new_activities")
 async def activety_select(callback_query: types.CallbackQuery):
     '''Callback на кнопки добавления активности'''
@@ -70,6 +69,21 @@ async def activety_select(callback_query: types.CallbackQuery):
     # Сохраняем флаг, что следующее сообщени пользователя будет активность
     set_activety_user_dict[callback_query.message.chat.id] = True
 
+@dp.callback_query_handler(lambda callback_query: callback_query.data.split(':')[0] in ['START', 'STOP'])
+async def start_stop_activities(callback_query: types.CallbackQuery):
+    '''Включает и выключает отслеживание активностей'''
+
+    #Получаем активность и задачу для отслеживания(начать или прекратить)
+    command, activity = callback_query.data.split(':')
+
+    print('I get calback acti', command, activity)
+    
+    if command == "START":
+        start_activity(callback_query.message.chat.id, activity)
+        show_all()
+    else:
+ #       stop_activity(callback_query.message.chat.id, activity)
+        pass
 @dp.message_handler()
 async def set_activety(message: types.Message):
     '''Запись новой активности от пользователя в бд'''

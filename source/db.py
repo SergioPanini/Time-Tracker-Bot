@@ -1,7 +1,9 @@
 import sqlite3
 import os
 from sqlite3.dbapi2 import connect
-from typing import List
+from typing import Coroutine, List
+
+from datetime import datetime
 
 conn = sqlite3.connect('/home/bot/source/data/db.sqlite3')
 coursor = conn.cursor()
@@ -39,8 +41,18 @@ def add_activity(chat_id: int, activity: str):
                     (','.join([user_activities, activity]), chat_id))
     conn.commit()
 
-def set_start_activities(chat_id: int, activities_name: str) -> None:
-    '''Стартует активность пользователя'''
+def start_activity(chat_id: int, activity_name: str) -> None:
+    '''Начинает отслеживание активность пользователя'''
 
-    coursor.execute("INSERT INTO activities(user_chat_id, type_activities, start)\
-         VALUES (?, ?, ?);")
+    coursor.execute("INSERT INTO activities(id, user_chat_id, type_activities, start)\
+         VALUES (?, ?, ?, ?);", (None, chat_id, activity_name, datetime.now()))
+        
+    conn.commit()
+
+def show_all() -> None:
+    coursor.execute("SELECT * FROM activities")
+
+    print(coursor.fetchall())
+
+
+
