@@ -3,43 +3,47 @@ from db import get_user_activities
 from aiogram import types
 
 SHOW_ACTIVITIES_SIZE = int(os.getenv('SHOW_ACTIVITIES_SIZE'))
-print('show....', SHOW_ACTIVITIES_SIZE)
 
-def get_activities_keyboard(chat_id: int, _list=0):
-    '''Создает главную клавитатуру'''
+class DontShowPage(Exception):
+    pass
 
-    START_KEYBOARD = types.InlineKeyboardMarkup()
+def get_activities_console(chat_id: int, page=0):
+    '''Создает консоль управления'''
 
-    START_KEYBOARD.add(types.InlineKeyboardButton(
-        text='Добавить активность', callback_data='Add_new_activities'))
-
+    #Проверяем список активностей пользовтеля
     user_activities = get_user_activities(chat_id)
 
-    print(user_activities[_list * SHOW_ACTIVITIES_SIZE : (_list + 1) * SHOW_ACTIVITIES_SIZE])
-    for i in user_activities[_list * SHOW_ACTIVITIES_SIZE : (_list + 1) * SHOW_ACTIVITIES_SIZE ]:
-        print(i)
-        START_KEYBOARD.add(types.InlineKeyboardButton(text=str(i), callback_data=str(
-            i)), types.InlineKeyboardButton(text='Start', callback_data='START-' + str(i)))
-
-    #Создание кнопок управления
-
-    #Проверяем, есть ли что то на след странице
-    if user_activities[(_list + 1) * SHOW_ACTIVITIES_SIZE : (_list + 2) * SHOW_ACTIVITIES_SIZE]:
-        right_wall = _list + 1
+    if _check_show_page_activities(user_activities, page):
+        return _build_new_page_activities(user_activities, page)
     else:
-        right_wall = _list
+        raise DontShowPage()
     
-    #Проверяем, есть ли что то на предыдущ странице
-    if user_activities[(_list - 1) * SHOW_ACTIVITIES_SIZE : _list * SHOW_ACTIVITIES_SIZE]:
-        left_wall = _list - 1
-    else:
-        left_wall = _list
+
+def _check_show_page_activities(user_activities: list, page: int):
+    '''Проверяем есть ли активности на странице что бы их показать '''
+
+    return True if user_activities[page * SHOW_ACTIVITIES_SIZE: (page + 1) * SHOW_ACTIVITIES_SIZE] else False
+
+def _build_new_page_activities(user_activities, page):
+    '''Собираем клавиатуру'''
+
+    #Инициализируем клавиатуру
+    keyboard = types.InlineKeyboardMarkup()
+    keyboard.add(types.InlineKeyboardButton(
+        text='Добавить активность', callback_data='Add_new_activities'))
+
+    #Собираем клавиатуру активностей
+    for i in user_activities[page * SHOW_ACTIVITIES_SIZE : (page + 1) * SHOW_ACTIVITIES_SIZE ]:
+        keyboard.add(types.InlineKeyboardButton(text=str(i), callback_data=str(
+            i)), types.InlineKeyboardButton(text='Start', callback_data='START-' + str(i)))
+    
+    #Создаем кнопки управления
+    keyboard.add(types.InlineKeyboardButton(text='<', callback_data='<:' + str(page - 1)),
+                       types.InlineKeyboardButton(text='>', callback_data='>:' + str(page + 1)))
+    
+    return keyboard
 
 
-    START_KEYBOARD.add(types.InlineKeyboardButton(text='<', callback_data='<:' + str(left_wall)),
-                       types.InlineKeyboardButton(text='>', callback_data='>:' + str(right_wall)))
-
-    return START_KEYBOARD
 
 
 def get_main_keyboard():

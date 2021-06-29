@@ -6,7 +6,6 @@ from typing import List
 conn = sqlite3.connect('/home/bot/source/data/db.sqlite3')
 coursor = conn.cursor()
 
-
 def add_user(chat_id: int):
     '''Добавляет пользователя в БД'''
 
@@ -39,3 +38,9 @@ def add_activity(chat_id: int, activity: str):
     coursor.execute("UPDATE users SET types_activities = ? WHERE users.chat_id = ?",
                     (','.join([user_activities, activity]), chat_id))
     conn.commit()
+
+def set_start_activities(chat_id: int, activities_name: str) -> None:
+    '''Стартует активность пользователя'''
+
+    coursor.execute("INSERT INTO activities(user_chat_id, type_activities, start)\
+         VALUES (?, ?, ?);")

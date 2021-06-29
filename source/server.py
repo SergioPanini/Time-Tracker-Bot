@@ -8,7 +8,7 @@ from aiogram.types.message import Message
 from messages import START_MESSAGE
 
 from db import add_user, add_activity, get_user_activities
-from services import get_activities_keyboard, get_main_keyboard
+from services import get_activities_console, get_main_keyboard, DontShowPage
 
 
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
@@ -28,7 +28,7 @@ async def send_walcome(message: types.Message):
 
     user_activities = get_user_activities(message.chat.id)
     print('Активность пользователя: ', user_activities)
-    start_keyboard = get_activities_keyboard(message.chat.id)
+    start_keyboard = get_activities_console(message.chat.id)
     static_keyboard = get_main_keyboard()
 
     await message.answer('🖐🏻', reply_markup=static_keyboard)
@@ -38,37 +38,37 @@ async def send_walcome(message: types.Message):
 @dp.message_handler(commands=['console'])
 async def show_main_console(message: types.Message):
     '''Отправляет основную консоль'''
-    await message.answer(text='Панель управления временем', reply_markup=get_activities_keyboard(message.chat.id))
+    await message.answer(text='Панель управления временем', reply_markup=get_activities_console(message.chat.id))
 
+#@dp.callback_query_handler(lambda callback_query: callback_query.data.split(':')[0] in ['START', 'STOP'])
+#async await
 
 @dp.callback_query_handler(lambda callback_query: callback_query.data.split(':')[0] in ['<', '>'] )
 async def main_comsole_move(callback_query: types.CallbackQuery):
-    '''Передвигает консоль'''
+    '''Показывает новые активности на консоли'''
 
-    #Получаем страницу, которую нужно показать 
-    _list = callback_query.data.split(':')[1]
+    #Получаем  номер страницы, которую нужно показать 
+    page = callback_query.data.split(':')[1]
     
-    #Создаем новую клавиатуру
-    new_keyboard = get_activities_keyboard(callback_query.message.chat.id, int(_list))
-    
-    #Меняем клавиатуру пользователю
     try:
+        #Создаем новую клавиатуру
+        new_keyboard = get_activities_console(callback_query.message.chat.id, int(page))
         await callback_query.message.edit_reply_markup(new_keyboard)
-    except:
+        await callback_query.answer('Готово')
+
+    except DontShowPage:
         await callback_query.answer('Больше нет активностей')
 
-@dp.callback_query_handler()
+
+@dp.callback_query_handler(lambda callback_query: callback_query.data == "Add_new_activities")
 async def activety_select(callback_query: types.CallbackQuery):
     '''Callback на кнопки добавления активности'''
 
-    if callback_query.data == "Add_new_activities":
-        await bot.send_message(chat_id=callback_query.message.chat.id, text='Введите название активности')
-        await callback_query.answer('Введите активность')
+    await bot.send_message(chat_id=callback_query.message.chat.id, text='Введите название активности')
+    await callback_query.answer('Введите активность')
         
-        # Сохраняем флаг, что следующее сообщени пользователя будет активность
-        set_activety_user_dict[callback_query.message.chat.id] = True
-        
-
+    # Сохраняем флаг, что следующее сообщени пользователя будет активность
+    set_activety_user_dict[callback_query.message.chat.id] = True
 
 @dp.message_handler()
 async def set_activety(message: types.Message):
