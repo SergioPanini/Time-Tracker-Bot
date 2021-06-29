@@ -7,8 +7,8 @@ from aiogram.types import reply_keyboard
 from aiogram.types.message import Message
 from messages import START_MESSAGE
 
-from db import add_user, add_activity, get_user_activities, start_activity, show_all
-from services import get_activities_console, get_main_keyboard, DontShowPage
+from db import add_user, add_activity, get_user_activities, start_activity, stop_activity, show_all
+from services import get_activities_console, get_console, DontShowPage
 
 
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
@@ -25,11 +25,12 @@ async def send_walcome(message: types.Message):
     '''Отправляет приветственное сообщение пользователю'''
 
     add_user(message.chat.id)
+    
 
     user_activities = get_user_activities(message.chat.id)
     print('Активность пользователя: ', user_activities)
     start_keyboard = get_activities_console(message.chat.id)
-    static_keyboard = get_main_keyboard()
+    static_keyboard = get_console()
 
     await message.answer('🖐🏻', reply_markup=static_keyboard)
     await message.answer(START_MESSAGE, reply_markup=start_keyboard)
@@ -76,14 +77,29 @@ async def start_stop_activities(callback_query: types.CallbackQuery):
     #Получаем активность и задачу для отслеживания(начать или прекратить)
     command, activity = callback_query.data.split(':')
 
-    print('I get calback acti', command, activity)
-    
     if command == "START":
         start_activity(callback_query.message.chat.id, activity)
-        show_all()
+    
     else:
- #       stop_activity(callback_query.message.chat.id, activity)
-        pass
+        stop_activity(callback_query.message.chat.id, activity)
+    
+    #Получаем обновленную консоль
+    updated_keyboard = get_activities_console(callback_query.message.chat.id,\
+         _get_actual_page(callback_query.message.reply_markup.inline_keyboard))
+    
+    #Меняем консоль и отвечаем на callback
+    await callback_query.message.edit_reply_markup(updated_keyboard)
+    await callback_query.answer(text="Команда выполнена")
+
+def _get_actual_page(inline_keyboard: list) -> int:
+    '''Находим номер страници консоли активности'''
+
+    inline_keyboard_last_row = inline_keyboard[-1]
+    next_button = inline_keyboard_last_row[1]
+    next_page = next_button.callback_data.split(':')[1]
+    
+    return int(next_page) - 1
+
 @dp.message_handler()
 async def set_activety(message: types.Message):
     '''Запись новой активности от пользователя в бд'''

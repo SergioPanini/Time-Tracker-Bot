@@ -18,7 +18,7 @@
 
 ### Соберите docker image из dockerfile
 
-`sudo docker build --tag time-tracket-bot .` , где `time-tracket-bot` название образа, которое вы хотите ему дать.
+`sudo docker build --tag time-tracket-bot .`
 
 ### Запустите контейнер на основе толькочто созданого образа
 
