@@ -38,8 +38,8 @@ def _build_new_page_activities(user_activities: list, page: int, chat_id: int):
     # Собираем клавиатуру активностей
     for i in user_activities[page * SHOW_ACTIVITIES_SIZE: (page + 1) * SHOW_ACTIVITIES_SIZE]:
         #Проверяем отслеживание активности
-        status_activity = 'STOP' if check_start_activity(
-            chat_id, i) else 'START'
+        status_activity = '⛔️ STOP' if check_start_activity(
+            chat_id, i) else '✅ START'
 
         #Создаем клавиатуру
         keyboard.add(types.InlineKeyboardButton(text=i,
@@ -52,10 +52,11 @@ def _build_new_page_activities(user_activities: list, page: int, chat_id: int):
 
     return keyboard
 
-def get_console():
-    '''Возвращяет кнопку с командой вывода консоли'''
+def get_static_keyboard():
+    '''Возвращяет кнопки с командой вывода консоли и статистики'''
     
     keyboard=types.ReplyKeyboardMarkup()
     keyboard.add(types.KeyboardButton(text='/console'))
+    keyboard.add(types.KeyboardButton(text='/stat'))
 
     return keyboard

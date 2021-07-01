@@ -1,14 +1,15 @@
 import logging
 import os
 import typing
+from datetime import datetime
 
 from aiogram import Bot, Dispatcher, types, executor
 from aiogram.types import reply_keyboard
 from aiogram.types.message import Message
 from messages import START_MESSAGE
 
-from db import add_user, add_activity, get_user_activities, start_activity, stop_activity, show_all
-from services import get_activities_console, get_console, DontShowPage
+from db import add_user, add_activity, get_user_activities, start_activity, stop_activity, show_all, get_stat
+from services import get_activities_console, get_static_keyboard, DontShowPage
 
 
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
@@ -26,11 +27,10 @@ async def send_walcome(message: types.Message):
 
     add_user(message.chat.id)
     
-
     user_activities = get_user_activities(message.chat.id)
     print('Активность пользователя: ', user_activities)
     start_keyboard = get_activities_console(message.chat.id)
-    static_keyboard = get_console()
+    static_keyboard = get_static_keyboard()
 
     await message.answer('🖐🏻', reply_markup=static_keyboard)
     await message.answer(START_MESSAGE, reply_markup=start_keyboard)
@@ -70,14 +70,14 @@ async def activety_select(callback_query: types.CallbackQuery):
     # Сохраняем флаг, что следующее сообщени пользователя будет активность
     set_activety_user_dict[callback_query.message.chat.id] = True
 
-@dp.callback_query_handler(lambda callback_query: callback_query.data.split(':')[0] in ['START', 'STOP'])
+@dp.callback_query_handler(lambda callback_query: callback_query.data.split(':')[0] in ['✅ START', '⛔️ STOP'])
 async def start_stop_activities(callback_query: types.CallbackQuery):
     '''Включает и выключает отслеживание активностей'''
 
     #Получаем активность и задачу для отслеживания(начать или прекратить)
     command, activity = callback_query.data.split(':')
 
-    if command == "START":
+    if command == "✅ START":
         start_activity(callback_query.message.chat.id, activity)
     
     else:
@@ -99,6 +99,12 @@ def _get_actual_page(inline_keyboard: list) -> int:
     next_page = next_button.callback_data.split(':')[1]
     
     return int(next_page) - 1
+
+@dp.message_handler(commands=['stat'])
+async def get_stat_user(message: types.Message):
+    '''Выводит статистику пользователя'''
+
+    message.answer(text='ММММ, я ститистику показывать пока не умею, разраб не допилил функционал 👨🏻‍💻')
 
 @dp.message_handler()
 async def set_activety(message: types.Message):

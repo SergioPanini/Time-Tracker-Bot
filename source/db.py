@@ -8,6 +8,7 @@ from datetime import datetime
 conn = sqlite3.connect('/home/bot/source/data/db.sqlite3')
 coursor = conn.cursor()
 
+
 def add_user(chat_id: int):
     '''Добавляет пользователя в БД'''
 
@@ -29,49 +30,54 @@ def get_user_activities(chat_id: int) -> list:
     user_activities = user[0][1]
     return user_activities.split(',')[1:]
 
+
 def check_start_activity(chat_id: int, activity_name: str) -> str:
     '''Проверяет запущена ли активность или нет'''
 
-    #Пытаемся найти начатую активность
+    # Пытаемся найти начатую активность
     coursor.execute("SELECT * FROM activities WHERE user_chat_id = ? AND \
-                    type_activities = ? AND start NOT NULL AND stop IS NULL;",\
-                        (chat_id, activity_name))
+                    type_activities = ? AND start NOT NULL AND stop IS NULL;",
+                    (chat_id, activity_name))
 
-    #Проверяем нашлось ли что то
+    # Проверяем нашлось ли что то
     if coursor.fetchall():
         return True
     return False
 
+
 def add_activity(chat_id: int, activity: str):
     '''Добавляет новую активность пользователю'''
 
-    #Достаем активности ползователя
+    # Достаем активности ползователя
     coursor.execute("SELECT * FROM users WHERE chat_id = ?", [(chat_id)])
     user = coursor.fetchall()
     user_activities = user[0][1]
 
-    #Добавляем новую активность
+    # Добавляем новую активность
     coursor.execute("UPDATE users SET types_activities = ? WHERE users.chat_id = ?",
                     (','.join([user_activities, activity]), chat_id))
     conn.commit()
 
+
 def start_activity(chat_id: int, activity_name: str) -> None:
     '''Начинает отслеживание активность пользователя'''
 
-    #Добавляем старт активности в БД
+    # Добавляем старт активности в БД
     coursor.execute("INSERT INTO activities(id, user_chat_id, type_activities, start)\
          VALUES (?, ?, ?, ?);", (None, chat_id, activity_name, datetime.now()))
-        
+
     conn.commit()
+
 
 def stop_activity(chat_id: int, activity_name: str) -> None:
     '''Останавливает отслеживание активности пользователя'''
 
-    #Останавливаем отслеживание активности в БД
+    # Останавливаем отслеживание активности в БД
     coursor.execute("UPDATE activities SET stop = ? WHERE user_chat_id = ? AND\
          type_activities = ?;", (datetime.now(), chat_id, activity_name))
 
     conn.commit()
+
 
 def show_all() -> None:
     coursor.execute("SELECT * FROM activities")
@@ -79,4 +85,12 @@ def show_all() -> None:
     print(coursor.fetchall())
 
 
+def get_stat(chat_id: int) -> list:
+    '''Достает статистику'''
 
+    coursor.execute("SELECT activities.type_activities as type_activities,\
+         count(activities.start) as amount,\
+              SUM(DATEDIFF(activities.stop, activities.start)) as mean\
+                   FROM activities WHERE activities.stop NOT NULL GROUP BY activities.type_activities;")
+    
+    return coursor.fetchall()

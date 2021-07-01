@@ -7,8 +7,8 @@ CREATE table activities(
     id integer,
     user_chat_id integer,
     type_activities varchar(255),
-    start datetime,
-    stop datetime,
+    start DATETIME,
+    stop DATETIME,
     FOREIGN KEY(user_chat_id) REFERENCES users(chat_id),
     PRIMARY KEY (id)
 );
