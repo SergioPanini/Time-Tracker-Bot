@@ -104,7 +104,7 @@ def _get_actual_page(inline_keyboard: list) -> int:
 async def get_stat_user(message: types.Message):
     '''Выводит статистику пользователя'''
 
-    message.answer(text='ММММ, я ститистику показывать пока не умею, разраб не допилил функционал 👨🏻‍💻')
+    await message.answer(text='ММММ, я ститистику показывать пока не умею, разраб не допилил функционал 👨🏻‍💻')
 
 @dp.message_handler()
 async def set_activety(message: types.Message):
