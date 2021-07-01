@@ -88,9 +88,6 @@ def show_all() -> None:
 def get_stat(chat_id: int) -> list:
     '''Достает статистику'''
 
-    coursor.execute("SELECT activities.type_activities as type_activities,\
-         count(activities.start) as amount,\
-              SUM(DATEDIFF(activities.stop, activities.start)) as mean\
-                   FROM activities WHERE activities.stop NOT NULL GROUP BY activities.type_activities;")
+    coursor.execute("SELECT type_activities, count(activities.start) FROM activities WHERE activities.stop NOT NULL GROUP BY activities.type_activities;")
     
     return coursor.fetchall()
