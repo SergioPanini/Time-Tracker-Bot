@@ -8,6 +8,8 @@
 Несколько активностей могут отслеживатся независимо
 друг от друга. Главное не забывай их останавливать.
 
+Бот доступен по сслыке https://t.me/Panini_Tracker_bot
+
 <div>
 <img src="https://user-images.githubusercontent.com/47488572/124309723-d539f780-db73-11eb-8b6d-958c6de97609.png" width="24%" style="float: left;">
 <img src="https://user-images.githubusercontent.com/47488572/124309956-31048080-db74-11eb-8b78-908bff70c9e7.png" width="24%" style="float: left;">
