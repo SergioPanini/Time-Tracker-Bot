@@ -12,14 +12,14 @@
 
 # Install
 ### Создайте файл с переменными окружения, содержащий:
-`TELEGRAM_BOT_TOKEN` - api токен бота
+`TELEGRAM_BOT_TOKEN` - API токен бота
 
-`SHOW_ACTIVITIES_SIZE` - Скольк активностей выводить на главной панели
+`SHOW_ACTIVITIES_SIZE` - Сколько активностей выводить на главной панели
 
 ### Соберите docker image из dockerfile
 
 `sudo docker build --tag time-tracket-bot .`
 
-### Запустите контейнер на основе толькочто созданого образа
+### Запустите контейнер на основе только что созданого образа
 
 `sudo docker run --rm -it --env-file <файл с переменными окружения> time-tracket-bot`
