@@ -77,6 +77,7 @@ async def start_stop_activities(callback_query: types.CallbackQuery):
     #Получаем активность и задачу для отслеживания(начать или прекратить)
     command, activity = callback_query.data.split(':')
 
+    print('Попытка включить отслеживание активности пользователя {message.chat.id}')
     if command == "✅ START":
         start_activity(callback_query.message.chat.id, activity)
     
@@ -105,6 +106,7 @@ async def get_stat_user(message: types.Message):
     '''Выводит статистику пользователя'''
 
     stat = get_stat(message.chat.id)
+    print(f'Вывод статистики пользователя {message.chat.id}, статистика {stat}')
     s = 'Статистика активности\n'
     for i in stat:
         act, coun = i
@@ -123,6 +125,10 @@ async def set_activety(message: types.Message):
         await message.answer(text='Запомнил %s' % message.text)
 
         add_activity(chat_id=message.chat.id, activity=message.text)
+        
+        print(f'Добавлена активность пользователю {message.chat.id}, активность {message.text}')
+    print(f'Попытка добавить активность пользователю {message.chat.id}, активность {message.text}')
+
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)

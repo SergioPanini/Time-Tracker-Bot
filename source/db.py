@@ -4,6 +4,9 @@ from sqlite3.dbapi2 import connect
 from typing import List
 
 from datetime import datetime
+import logging
+
+logging.basicConfig(filename='app.log', filemode='w', level=logging.INFO)
 
 conn = sqlite3.connect('/home/bot/source/data/db.sqlite3')
 coursor = conn.cursor()
@@ -14,12 +17,14 @@ def add_user(chat_id: int):
 
     coursor.execute("SELECT * FROM users WHERE chat_id = ?", [(chat_id)])
     user = coursor.fetchall()
+    is_user = len(user) == 0
 
-    if len(user) == 0:
+    if is_user:
         coursor.execute(
             "INSERT INTO users(chat_id, types_activities) VALUES (?, ?)", (chat_id, ",Работа,Спорт,Отдых"))
         conn.commit()
-        print('Добавил нового пользователя')
+
+    logging.info(f'add_user [{locals()}]')
 
 
 def get_user_activities(chat_id: int) -> list:
@@ -28,6 +33,9 @@ def get_user_activities(chat_id: int) -> list:
     coursor.execute("SELECT * FROM users WHERE chat_id = ?", [(chat_id)])
     user = coursor.fetchall()
     user_activities = user[0][1]
+
+    logging.info(f'get_user_activities [{locals()}]')
+
     return user_activities.split(',')[1:]
 
 
@@ -38,9 +46,12 @@ def check_start_activity(chat_id: int, activity_name: str) -> str:
     coursor.execute("SELECT * FROM activities WHERE user_chat_id = ? AND \
                     type_activities = ? AND start NOT NULL AND stop IS NULL;",
                     (chat_id, activity_name))
+    sql_result = coursor.fetchall()
 
+    logging.info(f'check_start_activity [{locals()}]')
+    
     # Проверяем нашлось ли что то
-    if coursor.fetchall():
+    if sql_result:
         return True
     return False
 
@@ -58,6 +69,9 @@ def add_activity(chat_id: int, activity: str):
                     (','.join([user_activities, activity]), chat_id))
     conn.commit()
 
+    logging.info(f'add_activity [{locals()}]')
+
+
 
 def start_activity(chat_id: int, activity_name: str) -> None:
     '''Начинает отслеживание активность пользователя'''
@@ -68,6 +82,9 @@ def start_activity(chat_id: int, activity_name: str) -> None:
 
     conn.commit()
 
+    logging.info(f'start_activity [{locals()}]')
+
+
 
 def stop_activity(chat_id: int, activity_name: str) -> None:
     '''Останавливает отслеживание активности пользователя'''
@@ -77,6 +94,8 @@ def stop_activity(chat_id: int, activity_name: str) -> None:
          type_activities = ?;", (datetime.now(), chat_id, activity_name))
 
     conn.commit()
+
+    logging.info(f'stop_activity [{locals()}]')
 
 
 def show_all() -> None:
@@ -89,5 +108,8 @@ def get_stat(chat_id: int) -> list:
     '''Достает статистику'''
 
     coursor.execute("SELECT type_activities, count(activities.start) FROM activities WHERE activities.stop NOT NULL GROUP BY activities.type_activities;")
-    
-    return coursor.fetchall()
+    sql_result = coursor.fetchall()
+
+    logging.info(f'get_stat [{locals()}]')
+
+    return sql_result
