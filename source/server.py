@@ -28,7 +28,6 @@ async def send_walcome(message: types.Message):
     add_user(message.chat.id)
     
     user_activities = get_user_activities(message.chat.id)
-    print('Активность пользователя: ', user_activities)
     start_keyboard = get_activities_console(message.chat.id)
     static_keyboard = get_static_keyboard()
 
@@ -40,9 +39,6 @@ async def send_walcome(message: types.Message):
 async def show_main_console(message: types.Message):
     '''Отправляет основную консоль'''
     await message.answer(text='Панель управления временем', reply_markup=get_activities_console(message.chat.id))
-
-#@dp.callback_query_handler(lambda callback_query: callback_query.data.split(':')[0] in ['START', 'STOP'])
-#async await
 
 @dp.callback_query_handler(lambda callback_query: callback_query.data.split(':')[0] in ['<', '>'] )
 async def main_comsole_move(callback_query: types.CallbackQuery):
@@ -77,7 +73,6 @@ async def start_stop_activities(callback_query: types.CallbackQuery):
     #Получаем активность и задачу для отслеживания(начать или прекратить)
     command, activity = callback_query.data.split(':')
 
-    print('Попытка включить отслеживание активности пользователя {message.chat.id}')
     if command == "✅ START":
         start_activity(callback_query.message.chat.id, activity)
     
@@ -106,15 +101,13 @@ async def get_stat_user(message: types.Message):
     '''Выводит статистику пользователя'''
 
     stat = get_stat(message.chat.id)
-    print(f'Вывод статистики пользователя {message.chat.id}, статистика {stat}')
-    s = 'Статистика активности\n'
-    for i in stat:
-        act, coun = i
-        s += f"Активность: {act}, кол-во за все время: {coun} \n"
+    
+    s = 'Статистика активности за все время\n'
+    for activity_row in stat:
+        activity, count, avg = activity_row
+        s += f"Активность: {activity}, количество: {count}, среднее время: {avg}\n"
     
     await message.answer(text=s)
-
-    #await message.answer(text='ММММ, я ститистику показывать пока не умею, разраб не допилил функционал 👨🏻‍💻')
 
 @dp.message_handler()
 async def set_activety(message: types.Message):
@@ -126,9 +119,5 @@ async def set_activety(message: types.Message):
 
         add_activity(chat_id=message.chat.id, activity=message.text)
         
-        print(f'Добавлена активность пользователю {message.chat.id}, активность {message.text}')
-    print(f'Попытка добавить активность пользователю {message.chat.id}, активность {message.text}')
-
-
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)

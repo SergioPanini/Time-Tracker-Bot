@@ -4,3 +4,4 @@ source/__pycache__/*
 env/*
 .vscode
 envfile
+temp_db.sqlite3

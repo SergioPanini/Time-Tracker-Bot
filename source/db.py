@@ -106,7 +106,13 @@ def show_all() -> None:
 def get_stat(chat_id: int) -> list:
     '''Достает статистику'''
 
-    coursor.execute("SELECT type_activities, count(activities.start) FROM activities WHERE activities.stop NOT NULL GROUP BY activities.type_activities;")
+    coursor.execute('SELECT\
+         activities.type_activities as activities,\
+         count(activities.start) as count,\
+         time(avg(strftime("%s", activities.stop) - strftime("%s", activities.start)), "unixepoch") as avg\
+              FROM activities WHERE activities.user_chat_id = ? AND activities.stop NOT NULL\
+              GROUP BY activities.type_activities;', [(chat_id)])
+    
     sql_result = coursor.fetchall()
 
     logging.info(f'get_stat [{locals()}]')
