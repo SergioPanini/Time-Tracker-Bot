@@ -11,7 +11,6 @@ logging.basicConfig(filename='app.log', filemode='w', level=logging.INFO)
 conn = sqlite3.connect('/home/bot/source/data/db.sqlite3')
 coursor = conn.cursor()
 
-
 def add_user(chat_id: int):
     '''Добавляет пользователя в БД'''
 
