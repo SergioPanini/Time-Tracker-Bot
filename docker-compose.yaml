@@ -1,0 +1,10 @@
+version: '2.0'
+
+services:
+    bot:
+        build: .
+        restart: always
+        volumes:
+            - ./source/data/:/home/bot/source/data/
+        env_file:
+            - envfile
