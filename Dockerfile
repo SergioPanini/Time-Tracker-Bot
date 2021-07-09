@@ -1,6 +1,6 @@
 FROM python:3.8
 
-WORKDIR /home/bot
+WORKDIR /home/bot   
 
 COPY ./req.txt .
 
