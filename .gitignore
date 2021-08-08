@@ -1,7 +1,8 @@
 env.dev
-__pycache__/*
-source/__pycache__/*
-env/*
+__pycache__
+source/__pycache__
+env
 .vscode
 envfile
 temp_db.sqlite3
+save_data

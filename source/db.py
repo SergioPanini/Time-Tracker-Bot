@@ -7,9 +7,9 @@ from datetime import datetime
 import logging
 
 logging.basicConfig(filename='app.log', filemode='w', level=logging.INFO)
-
-conn = sqlite3.connect('/home/bot/source/data/db.sqlite3')
+conn = sqlite3.connect('./source/data/db.sqlite3')
 coursor = conn.cursor()
+
 
 def add_user(chat_id: int):
     '''Добавляет пользователя в БД'''
@@ -31,6 +31,7 @@ def get_user_activities(chat_id: int) -> list:
 
     coursor.execute("SELECT * FROM users WHERE chat_id = ?", [(chat_id)])
     user = coursor.fetchall()
+
     user_activities = user[0][1]
 
     logging.info(f'get_user_activities [{locals()}]')
@@ -48,7 +49,7 @@ def check_start_activity(chat_id: int, activity_name: str) -> str:
     sql_result = coursor.fetchall()
 
     logging.info(f'check_start_activity [{locals()}]')
-    
+
     # Проверяем нашлось ли что то
     if sql_result:
         return True
@@ -71,7 +72,6 @@ def add_activity(chat_id: int, activity: str):
     logging.info(f'add_activity [{locals()}]')
 
 
-
 def start_activity(chat_id: int, activity_name: str) -> None:
     '''Начинает отслеживание активность пользователя'''
 
@@ -82,7 +82,6 @@ def start_activity(chat_id: int, activity_name: str) -> None:
     conn.commit()
 
     logging.info(f'start_activity [{locals()}]')
-
 
 
 def stop_activity(chat_id: int, activity_name: str) -> None:
@@ -112,9 +111,28 @@ def get_stat(chat_id: int) -> list:
          time(avg(strftime("%s", activities.stop) - strftime("%s", activities.start)), "unixepoch") as avg\
               FROM activities WHERE activities.user_chat_id = ? AND activities.stop NOT NULL\
               GROUP BY activities.type_activities;', [(chat_id)])
-    
+
     sql_result = coursor.fetchall()
 
     logging.info(f'get_stat [{locals()}]')
 
     return sql_result
+
+def get_all_users() -> list:
+    '''Возвращяет список пользователей для рассылки сообщений об обновлениях'''
+    coursor.execute("SELECT chat_id FROM users;")
+    return coursor.fetchall()
+
+def delete_activities_db(chat_id: int, delete_activities: list):
+    '''Удаляет активности пользователю'''
+    user_activities = get_user_activities(chat_id)
+    
+    for i in delete_activities:
+        user_activities.remove(i)
+    
+    write_activities(chat_id, user_activities)
+
+def write_activities(chat_id: int, user_activities: str):
+    coursor.execute("UPDATE users SET types_activities = ? WHERE users.chat_id = ?",
+                    (','.join(user_activities), chat_id))
+    conn.commit()

@@ -5,6 +5,6 @@ services:
         build: .
         restart: always
         volumes:
-            - ./source/data/:/home/bot/source/data/
+            - ./save_data/:/home/bot/source/data/
         env_file:
             - envfile
